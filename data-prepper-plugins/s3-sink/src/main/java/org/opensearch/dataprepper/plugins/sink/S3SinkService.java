@@ -117,7 +117,7 @@ public class S3SinkService {
                 }
                 if (ThresholdCheck.checkThresholdExceed(currentBuffer, maxEvents, maxBytes, maxCollectionDuration)) {
                     codec.complete(outputStream);
-                    final String s3Key = generateKey();
+                    final String s3Key = generateKey(codec);
                     LOG.info("Writing {} to S3 with {} events and size of {} bytes.",
                             s3Key, currentBuffer.getEventCount(), currentBuffer.getSize());
                     final boolean isFlushToS3 = retryFlushToS3(currentBuffer, s3Key);
@@ -183,9 +183,9 @@ public class S3SinkService {
      * Generate the s3 object path prefix and object file name.
      * @return object key path.
      */
-    protected String generateKey() {
+    protected String generateKey(OutputCodec codec) {
         final String pathPrefix = ObjectKey.buildingPathPrefix(s3SinkConfig);
-        final String namePattern = ObjectKey.objectFileName(s3SinkConfig);
+        final String namePattern = ObjectKey.objectFileName(s3SinkConfig, codec.getExtension());
         return (!pathPrefix.isEmpty()) ? pathPrefix + namePattern : namePattern;
     }
 }

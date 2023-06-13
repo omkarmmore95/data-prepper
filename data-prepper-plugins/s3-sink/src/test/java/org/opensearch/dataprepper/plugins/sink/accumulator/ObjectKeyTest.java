@@ -58,7 +58,7 @@ class ObjectKeyTest {
     void test_objectFileName() {
         
         when(objectKeyOptions.getNamePattern()).thenReturn("my-elb-%{yyyy-MM-dd'T'hh-mm-ss}");
-        String objectFileName = ObjectKey.objectFileName(s3SinkConfig);
+        String objectFileName = ObjectKey.objectFileName(s3SinkConfig,"json");
         Assertions.assertNotNull(objectFileName);
         assertThat(objectFileName, startsWith("my-elb"));
     }
@@ -68,7 +68,7 @@ class ObjectKeyTest {
 
         when(s3SinkConfig.getObjectKeyOptions().getNamePattern())
                 .thenReturn("events-%{yyyy-MM-dd'T'hh-mm-ss}.pdf");
-        String objectFileName = ObjectKey.objectFileName(s3SinkConfig);
+        String objectFileName = ObjectKey.objectFileName(s3SinkConfig, "json");
         Assertions.assertNotNull(objectFileName);
         Assertions.assertTrue(objectFileName.contains(".pdf"));
     }
@@ -78,7 +78,7 @@ class ObjectKeyTest {
 
         when(s3SinkConfig.getObjectKeyOptions().getNamePattern())
                 .thenReturn("events-%{yyyy-MM-dd'T'hh-mm-ss}");
-        String objectFileName = ObjectKey.objectFileName(s3SinkConfig);
+        String objectFileName = ObjectKey.objectFileName(s3SinkConfig, "json");
         Assertions.assertNotNull(objectFileName);
         Assertions.assertTrue(objectFileName.contains(".json"));
     }

@@ -50,16 +50,18 @@ public class ObjectKey {
      *Get the object file name with the extension
      *
      * @param s3SinkConfig s3 sink configuration
+     * @param extension extension
      * @return s3 object name with prefix
      */
-    public static String objectFileName(S3SinkConfig s3SinkConfig) {
+    public static String objectFileName(S3SinkConfig s3SinkConfig, String extension) {
         String configNamePattern = s3SinkConfig.getObjectKeyOptions().getNamePattern();
         int extensionIndex = configNamePattern.lastIndexOf('.');
         if (extensionIndex > 0) {
             return S3ObjectIndexUtility.getObjectNameWithDateTimeId(configNamePattern.substring(0, extensionIndex)) + "."
-                    + configNamePattern.substring(extensionIndex + 1);
+                    + (extension!=null? extension :configNamePattern.substring(extensionIndex + 1));
         } else {
-            return S3ObjectIndexUtility.getObjectNameWithDateTimeId(configNamePattern) + "." + DEFAULT_CODEC_FILE_EXTENSION;
+            return S3ObjectIndexUtility.getObjectNameWithDateTimeId(configNamePattern) + "." +
+                    (extension!=null? extension : DEFAULT_CODEC_FILE_EXTENSION);
         }
     }
 }

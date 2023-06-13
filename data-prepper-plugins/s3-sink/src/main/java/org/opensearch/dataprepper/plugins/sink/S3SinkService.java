@@ -22,8 +22,8 @@ import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.s3.S3Client;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
@@ -99,30 +99,25 @@ public class S3SinkService {
             currentBuffer = bufferFactory.getBuffer();
         }
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            codec.start(outputStream);
-            int currentEventCount = 0;
-            for (Record<Event> record : records) {
-                final Event event = record.getData();
-                /*
-                final String encodedEvent;
-                encodedEvent = codec.parse(event);
-                final byte[] encodedBytes = encodedEvent.getBytes();
-                currentBuffer.writeEvent(encodedBytes);
-                */
+            OutputStream outputStream = currentBuffer.getOutputStream();
 
+            for (Record<Event> record : records) {
+
+                if(currentBuffer.getSize() == 0) {
+                    System.out.println(" ############# ByteArrayOutputStream Is empty ############# ");
+                    codec.start(outputStream);
+                }
+
+                final Event event = record.getData();
                 codec.writeEvent(event, outputStream);
-                currentEventCount++;
+                int count = currentBuffer.getEventCount() +1;
+                currentBuffer.setEventCount(count);
 
                 if(event.getEventHandle() != null) {
                     bufferedEventHandles.add(event.getEventHandle());
                 }
-
-                if (ThresholdCheck.checkThresholdExceed(currentBuffer, maxEvents, maxBytes, maxCollectionDuration, outputStream, currentEventCount)) {
+                if (ThresholdCheck.checkThresholdExceed(currentBuffer, maxEvents, maxBytes, maxCollectionDuration)) {
                     codec.complete(outputStream);
-                    final byte[] encodedBytes = outputStream.toByteArray();
-                    currentBuffer.writeEvent(encodedBytes);
-
                     final String s3Key = generateKey();
                     LOG.info("Writing {} to S3 with {} events and size of {} bytes.",
                             s3Key, currentBuffer.getEventCount(), currentBuffer.getSize());
@@ -140,8 +135,6 @@ public class S3SinkService {
                         releaseEventHandles(false);
                     }
                     currentBuffer = bufferFactory.getBuffer();
-                    codec.start(new ByteArrayOutputStream());
-                    currentEventCount = 0;
                 }
             }
         } catch (IOException | InterruptedException e) {

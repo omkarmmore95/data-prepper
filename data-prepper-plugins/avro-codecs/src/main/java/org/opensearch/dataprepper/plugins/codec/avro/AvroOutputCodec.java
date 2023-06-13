@@ -23,7 +23,7 @@ import java.util.Objects;
  * An implementation of {@link OutputCodec} which deserializes Data-Prepper events
  * and writes them to Output Stream as AVRO Data
  */
-@DataPrepperPlugin(name="avro", pluginType = OutputCodec.class, pluginConfigurationType =  AvroOutputCodecConfig.class)
+@DataPrepperPlugin(name = "avro", pluginType = OutputCodec.class, pluginConfigurationType = AvroOutputCodecConfig.class)
 public class AvroOutputCodec implements OutputCodec {
 
     private final AvroOutputCodecConfig config;
@@ -39,15 +39,20 @@ public class AvroOutputCodec implements OutputCodec {
 
     private static Schema schema;
 
-    private static final String AVRO="avro";
-    private static final String s3Key="s3";
+    private static final String AVRO = "avro";
+    private static final String s3Key = "s3";
 
 
     @Override
     public void start(final OutputStream outputStream) throws IOException {
         Objects.requireNonNull(outputStream);
-        Objects.requireNonNull(config.getSchema());
-        schema=parseSchema(config.getSchema());
+
+        if (config.getSchema() != null) {
+            schema = parseSchema(config.getSchema());
+        } else {
+            schema = AvroSchemaParser.parseSchemaFromJsonFile(config.getFileLocation());
+        }
+
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(schema);
         dataFileWriter = new DataFileWriter<>(datumWriter);
         dataFileWriter.create(schema, outputStream);
@@ -60,11 +65,11 @@ public class AvroOutputCodec implements OutputCodec {
     }
 
     @Override
-    public void writeEvent(final Event event,final OutputStream outputStream) throws IOException {
+    public void writeEvent(final Event event, final OutputStream outputStream) throws IOException {
         Objects.requireNonNull(event);
         final GenericRecord record = new GenericData.Record(schema);
-        for(final String key: event.toMap().keySet()){
-            if(!s3Key.equals(key)) {
+        for (final String key : event.toMap().keySet()) {
+            if (!s3Key.equals(key)) {
                 record.put(key, event.toMap().get(key));
             }
         }

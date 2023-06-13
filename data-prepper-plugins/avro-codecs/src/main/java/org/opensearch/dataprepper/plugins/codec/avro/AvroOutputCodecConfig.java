@@ -12,6 +12,14 @@ public class AvroOutputCodecConfig {
     @JsonProperty("schema")
     private String schema;
 
+    @JsonProperty("schema_file_location")
+    private String fileLocation;
+
+
+    public String getFileLocation() {
+        return fileLocation;
+    }
+
     public String getSchema() {
         return schema;
     }

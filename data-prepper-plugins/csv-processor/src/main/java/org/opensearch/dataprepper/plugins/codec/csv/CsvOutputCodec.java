@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -52,17 +51,19 @@ public class CsvOutputCodec implements OutputCodec {
     @Override
     public void writeEvent(final Event event, final OutputStream outputStream) throws IOException {
         Objects.requireNonNull(event);
-        final Collection<Object> values = event.toMap().values();
-        if (headerLength != values.size()) {
+        List<String> valueList = event.toMap().entrySet().stream().filter(map -> map.getValue() instanceof String)
+                .map(map -> map.getValue().toString())
+                .collect(Collectors.toList());
+
+        if (headerLength != valueList.size()) {
             LOG.error("CSV Row doesn't conform with the header.");
             return;
         }
-        final byte[] byteArr = values.stream().
-                map(Object::toString).collect(Collectors.joining(config.getDelimiter())).getBytes();
+        final byte[] byteArr = valueList.stream().collect(Collectors.joining(",")).getBytes();
         writeByteArrayToOutputStream(outputStream, byteArr);
     }
 
-    private void writeByteArrayToOutputStream(final OutputStream outputStream,final byte[] byteArr) throws IOException {
+    private void writeByteArrayToOutputStream(final OutputStream outputStream, final byte[] byteArr) throws IOException {
         outputStream.write(byteArr);
         outputStream.write(System.lineSeparator().getBytes());
     }

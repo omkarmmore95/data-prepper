@@ -40,6 +40,8 @@ public class AvroOutputCodec implements OutputCodec {
     private static Schema schema;
 
     private static final String AVRO="avro";
+    private static final String s3Key="s3";
+
 
     @Override
     public void start(final OutputStream outputStream) throws IOException {
@@ -62,7 +64,9 @@ public class AvroOutputCodec implements OutputCodec {
         Objects.requireNonNull(event);
         final GenericRecord record = new GenericData.Record(schema);
         for(final String key: event.toMap().keySet()){
-            record.put(key,event.toMap().get(key));
+            if(!s3Key.equals(key)) {
+                record.put(key, event.toMap().get(key));
+            }
         }
         dataFileWriter.append(record);
     }

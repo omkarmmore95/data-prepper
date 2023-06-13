@@ -10,11 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class AvroOutputCodecConfig {
 
     @JsonProperty("schema")
-    private final String schema;
-
-    public AvroOutputCodecConfig(String schema) {
-        this.schema = schema;
-    }
+    private String schema;
 
     public String getSchema() {
         return schema;

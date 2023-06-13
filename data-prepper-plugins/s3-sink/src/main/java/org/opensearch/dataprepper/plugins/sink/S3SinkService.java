@@ -104,7 +104,6 @@ public class S3SinkService {
             for (Record<Event> record : records) {
 
                 if(currentBuffer.getSize() == 0) {
-                    System.out.println(" ############# ByteArrayOutputStream Is empty ############# ");
                     codec.start(outputStream);
                 }
 

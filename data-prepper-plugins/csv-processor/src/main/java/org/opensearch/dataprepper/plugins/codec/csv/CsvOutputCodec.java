@@ -30,6 +30,7 @@ public class CsvOutputCodec implements OutputCodec {
     private static final String CSV = "csv";
     private static int headerLength = 0;
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static List<String> headerList;
 
     @DataPrepperPluginConstructor
     public CsvOutputCodec(final CsvOutputCodecConfig config) {
@@ -40,7 +41,19 @@ public class CsvOutputCodec implements OutputCodec {
     @Override
     public void start(final OutputStream outputStream) throws IOException {
         Objects.requireNonNull(outputStream);
-        final List<String> headerList = config.getHeader();
+        if (config.getHeader() != null) {
+            headerList = config.getHeader();
+        } else if (config.getLocation() != null) {
+            try {
+                headerList = CsvHeaderParser.headerParser(config.getLocation());
+            } catch (Exception e) {
+                LOG.error(e.getMessage());
+            }
+        } else {
+            LOG.error("No header provided");
+            throw new IOException("No header found");
+        }
+
         headerLength = headerList.size();
         final byte[] byteArr = String.join(config.getDelimiter(), headerList).getBytes();
         writeByteArrayToOutputStream(outputStream, byteArr);
@@ -56,7 +69,7 @@ public class CsvOutputCodec implements OutputCodec {
         Objects.requireNonNull(event);
         Map<String, Object> eventMap = event.toMap();
 
-        if(!Objects.isNull(config.getExcludeKeys())){
+        if (!Objects.isNull(config.getExcludeKeys())) {
             for (String key : config.getExcludeKeys()) {
                 if (eventMap.containsKey(key)) {
                     eventMap.remove(key);

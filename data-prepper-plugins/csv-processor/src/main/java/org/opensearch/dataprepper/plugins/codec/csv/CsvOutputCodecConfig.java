@@ -20,6 +20,13 @@ public class CsvOutputCodecConfig {
     @JsonProperty("exclude_keys")
     private List<String> excludeKeys;
 
+    @JsonProperty("header_file_location")
+    private String location;
+
+    public String getLocation() {
+        return location;
+    }
+
     public List<String> getExcludeKeys() {
         return excludeKeys;
     }

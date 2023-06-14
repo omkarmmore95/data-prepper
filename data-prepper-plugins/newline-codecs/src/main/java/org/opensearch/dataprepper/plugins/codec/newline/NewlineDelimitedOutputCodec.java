@@ -25,10 +25,12 @@ public class NewlineDelimitedOutputCodec implements OutputCodec {
     private static final String MESSAGE_FIELD_NAME = "message";
     private final String headerDestination;
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    NewlineDelimitedOutputConfig config;
 
     @DataPrepperPluginConstructor
     public NewlineDelimitedOutputCodec(final NewlineDelimitedOutputConfig config) {
         Objects.requireNonNull(config);
+        this.config = config;
         headerDestination = config.getHeaderDestination();
     }
 
@@ -46,7 +48,7 @@ public class NewlineDelimitedOutputCodec implements OutputCodec {
     public void writeEvent(final Event event, final OutputStream outputStream) throws IOException {
         Objects.requireNonNull(event);
         final Map<String, Object> eventDataMap = event.toMap();
-        if (eventDataMap.containsKey(headerDestination) || eventDataMap.containsKey(MESSAGE_FIELD_NAME)){
+        if (eventDataMap.containsKey(headerDestination) || eventDataMap.containsKey(MESSAGE_FIELD_NAME)) {
             final Object headerValue = eventDataMap.get(headerDestination);
             if (headerValue != null) {
                 writeArrayToOutputStream(outputStream, headerValue);
@@ -59,16 +61,25 @@ public class NewlineDelimitedOutputCodec implements OutputCodec {
                     writeArrayToOutputStream(outputStream, value);
                 }
             }
-        } else{
+        } else {
             writeArrayToOutputStream(outputStream, eventDataMap);
         }
     }
 
     private void writeArrayToOutputStream(final OutputStream outputStream, final Object object) throws IOException {
+        boolean isExcludeKeyAvailable = !Objects.isNull(config.getExcludeKeys());
         byte[] byteArr = null;
         if (object instanceof Map) {
             //todo
-            String json = objectMapper.writeValueAsString(object);
+            Map map = objectMapper.convertValue(object, Map.class);
+            if (isExcludeKeyAvailable) {
+                for (String key : config.getExcludeKeys()) {
+                    if (map.containsKey(key)) {
+                        map.remove(key);
+                    }
+                }
+            }
+            String json = objectMapper.writeValueAsString(map);
             byteArr = json.getBytes();
         } else {
             byteArr = object.toString().getBytes();

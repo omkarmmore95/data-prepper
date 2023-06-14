@@ -7,6 +7,8 @@ package org.opensearch.dataprepper.plugins.codec.newline;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 /**
  * Configuration class for the newline delimited codec.
  */
@@ -14,6 +16,14 @@ public class NewlineDelimitedOutputConfig {
 
     @JsonProperty("header_destination")
     private String headerDestination;
+
+
+    @JsonProperty("exclude_keys")
+    private List<String> excludeKeys;
+
+    public List<String> getExcludeKeys() {
+        return excludeKeys;
+    }
 
     /**
      * The key containing the header line of the S3 object.

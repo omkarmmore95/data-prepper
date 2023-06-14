@@ -43,9 +43,9 @@ public class CsvOutputCodec implements OutputCodec {
         Objects.requireNonNull(outputStream);
         if (config.getHeader() != null) {
             headerList = config.getHeader();
-        } else if (config.getLocation() != null) {
+        } else if (config.getHeaderFileLocation() != null) {
             try {
-                headerList = CsvHeaderParser.headerParser(config.getLocation());
+                headerList = CsvHeaderParser.headerParser(config.getHeaderFileLocation());
             } catch (Exception e) {
                 LOG.error(e.getMessage());
             }

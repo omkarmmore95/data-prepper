@@ -17,7 +17,6 @@ public class NewlineDelimitedOutputConfig {
     @JsonProperty("header_destination")
     private String headerDestination;
 
-
     @JsonProperty("exclude_keys")
     private List<String> excludeKeys;
 

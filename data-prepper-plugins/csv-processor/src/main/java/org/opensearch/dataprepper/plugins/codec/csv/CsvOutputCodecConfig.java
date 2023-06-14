@@ -17,6 +17,13 @@ public class CsvOutputCodecConfig {
     @JsonProperty("header")
     private List<String> header;
 
+    @JsonProperty("exclude_keys")
+    private List<String> excludeKeys;
+
+    public List<String> getExcludeKeys() {
+        return excludeKeys;
+    }
+
     public String getDelimiter() {
         return delimiter;
     }

@@ -48,8 +48,10 @@ public class AvroOutputCodec implements OutputCodec {
 
         if (config.getSchema() != null) {
             schema = parseSchema(config.getSchema());
-        } else {
+        } else if(config.getFileLocation() != null){
             schema = AvroSchemaParser.parseSchemaFromJsonFile(config.getFileLocation());
+        }else if(config.getSchemaRegistryUrl() != null){
+            schema = parseSchema(AvroSchemaParserFromSchemaRegistry.getSchemaType(config.getSchemaRegistryUrl()));
         }
 
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(schema);

@@ -20,6 +20,9 @@ public class AvroOutputCodecConfig {
     @JsonProperty("exclude_keys")
     private List<String> excludeKeys;
 
+    @JsonProperty("schema_registry_url")
+    private String schemaRegistryUrl;
+
     public List<String> getExcludeKeys() {
         return excludeKeys;
     }
@@ -31,5 +34,9 @@ public class AvroOutputCodecConfig {
 
     public String getSchema() {
         return schema;
+    }
+
+    public String getSchemaRegistryUrl() {
+        return schemaRegistryUrl;
     }
 }

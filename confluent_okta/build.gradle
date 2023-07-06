@@ -1,0 +1,69 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
+    }
+}
+
+plugins {
+    id "java"
+    id "idea"
+    id "eclipse"
+}
+
+sourceCompatibility = "1.11"
+targetCompatibility = "1.11"
+version = "0.0.1"
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url "https://packages.confluent.io/maven"
+    }
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
+
+dependencies {
+    implementation group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.36'
+    implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.3.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
+    implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
+    implementation group: 'org.apache.avro', name: 'avro', version: '1.11.0'
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.21'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.1.10'
+    implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.5.0'
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.0'
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.2'
+
+
+    implementation files('libs/kafka-avro-serializer-7.4.0.jar')
+    implementation files('libs/kafka-schema-registry-client-7.4.0.jar')
+    implementation files('libs/kafka-schema-serializer-7.4.0.jar')
+    implementation files('libs/logredactor-1.0.11.jar')
+    implementation files('libs/kafka-json-serializer-7.4.0.jar')
+    implementation files('libs/kafka-json-schema-serializer-7.4.0.jar')
+    implementation files('libs/kafka-json-schema-provider-7.4.0.jar')
+    implementation 'org.projectlombok:lombok:1.18.26'
+
+}
+
+jar {
+    manifest {
+        attributes(
+                "Class-Path": configurations.compileClasspath.collect { it.getName() }.join(" "),
+                "Main-Class": "examples.ProducerExample"
+        )
+    }
+}
+
+shadowJar {
+    archiveBaseName = "confluent-okta"
+    archiveClassifier = ''
+}
